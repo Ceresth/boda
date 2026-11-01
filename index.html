@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Esther & Jaime · 28.08.2027</title>
+<!-- Vista previa en WhatsApp. Si cambia la dirección web, actualiza estas URLs -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ceresth.github.io/boda/">
+<meta property="og:title" content="¡Esther y Jaime se casan! 💌">
+<meta property="og:description" content="Tienes una invitación. Ábrela y confírmanos si vienes.">
+<meta property="og:image" content="https://ceresth.github.io/boda/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Cinzel:wght@600&family=Caveat:wght@500;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--verde:#cfe0c3;--azul:#1f3a7a;--crema:#f3efe6;--tinta:#2b2b2b;--botella:#4f7a45}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Lora',serif;color:var(--tinta);background:#e9e4da;overflow-x:hidden}
+.hand{font-family:'Gochi Hand',cursive}
+.script{font-family:'Caveat',cursive}
+
+/* ---------- SOBRE ---------- */
+#escena{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;
+  background:radial-gradient(circle at 50% 40%,#f4f2ec,#dcdcd4);z-index:10;transition:opacity .9s}
+#escena.fuera{opacity:0;pointer-events:none}
+.sobre{position:relative;width:min(420px,90vw);aspect-ratio:628/502;cursor:pointer;perspective:1200px;filter:drop-shadow(0 18px 22px rgba(40,50,30,.25))}
+.sobre .interior{position:absolute;inset:0;background:#55703f;border-radius:3px}
+.carta-wrap{position:absolute;inset:0;clip-path:inset(-400% -40% 0 -40%);z-index:1}
+.sobre .carta{position:absolute;left:9%;width:82%;top:5%;transition:transform 1.2s .7s cubic-bezier(.45,0,.2,1)}
+.carta .t1{box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.img-sobre{position:absolute;inset:0;background:url(sobre-sin.jpg) center/100% 100%}
+.sobre .bolsillo{clip-path:polygon(0 6%,49.5% 60%,100% 4%,100% 100%,0 100%);z-index:2}
+.dir{position:absolute;left:0;right:0;top:72%;text-align:center;z-index:2;color:#f1f4e8;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.dir small{font-family:'Gochi Hand';font-size:15px;opacity:.9}.dir div{font-family:'Caveat';font-size:clamp(22px,6.5vw,30px);line-height:1}
+.solapa{position:absolute;inset:0;transform-origin:top;transform-style:preserve-3d;transition:transform .8s ease;z-index:3}
+.solapa>div{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,100% 4%,49.5% 60%,0 6%);backface-visibility:hidden}
+.solapa .int{background:#4a6338;transform:rotateX(180deg)}
+.sello{position:absolute;inset:0;background:url(sobre.jpg) center/100% 100%;clip-path:circle(13.4% at 49.5% 52.4%);z-index:4;
+  transition:opacity .4s,transform .4s;transform-origin:49.5% 52.4%}
+.sello span{position:absolute;left:49.5%;top:52.4%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-weight:600;
+  font-size:clamp(20px,6vw,28px);color:#9dbb8f;text-shadow:-1px -1px 0 rgba(255,255,255,.18),1px 1px 1px rgba(0,0,0,.45);letter-spacing:1px}
+.sobre.abierto .sello{opacity:0;transform:scale(1.25)}
+.sobre.abierto .solapa{transform:rotateX(180deg);z-index:0;transition:transform .8s ease,z-index 0s .4s}
+.sobre{transition:transform 1.2s .7s cubic-bezier(.45,0,.2,1)}
+.sobre.abierto{transform:translateY(45%)}
+.sobre.abierto .carta{transform:translateY(-85%)}
+.sobre.sale .carta{transform:translateY(-85%) scale(1.08);transition:transform .8s}
+#escena.fuera .toca{opacity:0}
+.toca{font-family:'Gochi Hand';color:#8a8a80;font-size:18px;animation:lat 1.6s infinite}
+@keyframes lat{50%{opacity:.35}}
+
+/* ---------- TARJETAS ---------- */
+main{max-width:520px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:22px;opacity:0;transition:opacity 1s}
+main.visible{opacity:1}
+.tarjeta{position:relative;border-radius:4px;box-shadow:0 10px 26px rgba(0,0,0,.14);overflow:hidden}
+.t1{container-type:inline-size;background:var(--verde);aspect-ratio:4/5;padding:9% 8% 0;text-align:center;color:var(--azul)}
+.t1 .marco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.t1 h1{font-family:'Gochi Hand';font-weight:400;font-size:8.5cqw;line-height:1.2;margin-top:1.5cqw}
+.t1 .fecha{font-family:'Lora';font-weight:600;font-size:6.8cqw;letter-spacing:.3cqw;margin-top:2.5cqw}
+.pareja{position:absolute;left:0;right:0;bottom:0;height:62%}
+.pareja svg.cuerpos{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:100%}
+.nombre{position:absolute;font-family:'Gochi Hand';font-size:6.5cqw}
+.n1{left:8%;top:6%}.n2{right:7%;top:46%}
+.flecha{position:absolute;width:14%;height:auto;aspect-ratio:6/7}
+.f1{left:12%;top:16%}.f2{right:13%;top:58%;transform:scaleX(-1)}
+
+.prog{container-type:inline-size;position:relative;background:#efebe3}
+.prog img{display:block;width:100%}
+.pt{position:absolute;color:#2b2b2b;line-height:1.15}
+.pt b{display:block;font:600 3.6cqw 'Lora',serif}.pt i{display:block;font:700 5.6cqw 'Caveat',cursive;font-style:normal;color:#1f3a7a}
+.pt.der{text-align:right}
+.nombres{font:700 6cqw 'Caveat',cursive;white-space:nowrap}
+.titulo{font:700 7.6cqw 'Caveat',cursive;transform:rotate(-9deg);white-space:nowrap}
+.raya{position:absolute;width:3.2%;height:0;border-top:1.5px solid #2b2b2b}
+.pie{text-align:center;display:flex;flex-direction:column;gap:.6cqw;font:3.4cqw 'Lora',serif}
+.pie .f{font:700 6.4cqw 'Caveat',cursive}
+.pie a{font:3.8cqw 'Gochi Hand',cursive;color:#1f3a7a}
+
+/* ---------- FORMULARIO ---------- */
+.t3{background:var(--crema);padding:28px 22px}
+.t3 h2{font-family:'Caveat';font-size:38px;color:var(--azul);text-align:center}
+.t3 .sub{text-align:center;font-size:14px;color:#666;margin-bottom:18px}
+.opciones{display:flex;gap:10px;margin-bottom:16px}
+.opciones label{flex:1}
+.opciones label{position:relative}.opciones input{position:absolute;opacity:0;inset:0}
+.opciones span{display:block;text-align:center;padding:14px 8px;border:2px solid var(--azul);border-radius:30px;
+  font-family:'Gochi Hand';font-size:19px;color:var(--azul);cursor:pointer;transition:.2s}
+.opciones input:checked+span{background:var(--azul);color:#fff}
+.campo{margin-bottom:14px}
+.campo>label{display:block;font-size:14px;margin-bottom:6px}
+.contador{display:flex;align-items:center;gap:14px}
+.contador button{width:40px;height:40px;border-radius:50%;border:2px solid var(--azul);background:none;color:var(--azul);font-size:22px;cursor:pointer}
+.contador output{font-family:'Caveat';font-size:32px;min-width:22px;text-align:center}
+.opciones.mini{margin-bottom:8px}.opciones.mini span{padding:9px 8px;font-size:17px}
+.nino{display:grid;grid-template-columns:1fr 80px;gap:8px;margin-top:8px}
+input[type=text],input[type=number],textarea{width:100%;padding:11px 12px;border:1.5px solid #c9c2b4;border-radius:8px;font:inherit;font-size:16px;background:#fffdf8}
+textarea{min-height:70px;resize:vertical}
+.enviar{width:100%;padding:15px;border:0;border-radius:30px;background:var(--azul);color:#fff;font-family:'Gochi Hand';font-size:22px;cursor:pointer;margin-top:6px}
+.enviar:disabled{opacity:.5}
+.oculto{display:none}
+.gracias{text-align:center;padding:20px 0}
+.gracias p{font-family:'Caveat';font-size:32px;color:var(--azul)}
+.limite{text-align:center;font-size:13px;color:#888;margin-top:12px}
+</style>
+</head>
+<body>
+
+<!-- SOBRE -->
+<div id="escena">
+  <div class="sobre" id="sobre">
+    <div class="interior"></div>
+    <div class="carta-wrap"><div class="carta" id="carta"></div></div>
+    <div class="img-sobre bolsillo"></div>
+    <div class="dir"><small>Para</small><div id="para">ti</div></div>
+    <div class="solapa"><div class="img-sobre"></div><div class="int"></div></div>
+    <div class="sello"><span>E&J</span></div>
+  </div>
+  <div class="toca">toca el sobre para abrirlo</div>
+</div>
+
+<main id="main">
+  <!-- TARJETA 1 -->
+  <section class="tarjeta t1">
+    <svg class="marco" viewBox="0 0 400 500" preserveAspectRatio="none" fill="none" stroke="#1f3a7a" stroke-width="2.2" stroke-linecap="round">
+      <path d="M14 18 C120 12 280 16 386 14 C390 140 384 330 388 484 C260 488 130 482 12 486 C16 330 10 160 14 18"/>
+      <path d="M20 12 C150 18 270 10 380 20 C384 170 392 320 382 478 C250 482 140 490 18 480 C10 320 20 150 20 12"/>
+    </svg>
+    <div class="hand" style="font-size:6.5cqw">♡</div>
+    <h1>¡Estos niños<br>se casan!</h1>
+    <div class="fecha">28.08.2027</div>
+    <div class="pareja">
+      <span class="nombre n1">Esther</span>
+      <svg class="flecha f1" viewBox="0 0 60 70" fill="none" stroke="#1f3a7a" stroke-width="2" stroke-linecap="round"><path d="M10 6 C6 30 14 52 50 62"/><path d="M4 16 L10 5 L17 15"/></svg>
+      <span class="nombre n2">Jaime</span>
+      <svg class="flecha f2" viewBox="0 0 60 70" fill="none" stroke="#1f3a7a" stroke-width="2" stroke-linecap="round"><path d="M10 6 C6 30 14 52 50 62"/><path d="M4 16 L10 5 L17 15"/></svg>
+      <svg class="cuerpos" viewBox="0 0 300 310">
+        <defs>
+          <clipPath id="cE"><ellipse cx="95" cy="95" rx="62" ry="70"/></clipPath>
+          <clipPath id="cJ"><ellipse cx="205" cy="92" rx="58" ry="68"/></clipPath>
+        </defs>
+        <!-- Ella: vestido -->
+        <path d="M60 180 Q95 168 130 180 L158 310 L32 310 Z" fill="#f6ecdc"/>
+        <path d="M58 182 Q46 196 52 214 L72 206 Z M132 182 Q144 196 138 214 L118 206 Z" fill="#f6ecdc" stroke="#e5d8c2"/>
+        <path d="M70 215 Q95 240 120 215" stroke="#e8c39e" stroke-width="13" fill="none" stroke-linecap="round"/>
+        <g stroke="#6b8a5c" stroke-width="3"><path d="M95 230 L88 275 M95 230 L100 278 M95 230 L94 280"/></g>
+        <g fill="#fff" stroke="#6b8a5c" stroke-width="2"><circle cx="82" cy="215" r="10"/><circle cx="104" cy="208" r="10"/><circle cx="96" cy="226" r="9"/></g>
+        <!-- Él: traje -->
+        <path d="M170 172 Q205 162 240 172 L250 310 L160 310 Z" fill="#3e5236"/>
+        <path d="M190 168 L205 230 L220 168 Z" fill="#e9dccb"/>
+        <path d="M190 168 L200 215 L186 190 Z M220 168 L210 215 L224 190 Z" fill="#2f4129"/>
+        <circle cx="246" cy="282" r="9" fill="#e8c39e"/>
+        <!-- Caras: sustituye esther.png y jaime.png por fotos de pequeños recortadas -->
+        <g clip-path="url(#cE)"><rect x="30" y="20" width="130" height="150" fill="#e9d6c2"/>
+          <image href="esther.png" x="28" y="20" width="134" height="150" preserveAspectRatio="xMidYMid slice"/></g>
+        <g clip-path="url(#cJ)"><rect x="145" y="20" width="120" height="145" fill="#ead9c6"/>
+          <image href="jaime.png" x="145" y="20" width="120" height="145" preserveAspectRatio="xMidYMid slice"/></g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- TARJETA 2 -->
+  <section class="tarjeta prog">
+    <img src="programa.jpg" alt="">
+    <div class="pt nombres" style="left:39%;top:3%;transform:translateX(-50%)">Esther & Jaime</div>
+    <div class="pt titulo" style="left:7.5%;top:22.6%">Nuestro día</div>
+    <div class="pt der" style="right:56.2%;top:29.5%"><b>Recepción</b><i>20:30</i></div>
+    <div class="pt" style="left:61.4%;top:37.0%"><b>Ceremonia</b></div>
+    <div class="pt der" style="right:56.2%;top:46.2%"><b>Cóctel</b></div>
+    <div class="pt" style="left:61.4%;top:55.3%"><b>Cena</b></div>
+    <div class="pt der" style="right:57.6%;top:61.6%"><b>Barra libre</b></div>
+    <div class="raya" style="left:43.2%;top:62.9%"></div>
+    <div class="pt pie" style="left:0;right:0;top:85.5%">
+      <span class="f">Sábado, 28 de agosto de 2027</span>
+      <span>El Señorío de Ajuria · C. Litio, 1, Fuenlabrada</span>
+      <a href="https://www.google.com/maps/search/?api=1&query=Señorío+de+Ajuria+Calle+Litio+1+Fuenlabrada" target="_blank">Cómo llegar ↗</a></div>
+  </section>
+
+  <!-- TARJETA 3: CONFIRMACIÓN -->
+  <section class="tarjeta t3">
+    <form id="form">
+      <h2>¿Nos acompañas?</h2>
+      <p class="sub" id="saludo">Confírmanos tu asistencia</p>
+      <div class="opciones">
+        <label><input type="radio" name="asiste" value="Sí" required><span>¡Allí estaré!</span></label>
+        <label><input type="radio" name="asiste" value="No"><span>No podré ir</span></label>
+      </div>
+      <div id="bloqueSi" class="oculto">
+        <div class="campo"><label>Adultos que asistiréis (contándote a ti)</label>
+          <div class="contador" data-c="adultos"><button type="button">−</button><output>1</output><button type="button">+</button></div>
+          <div id="listaAdultos"></div></div>
+        <div class="campo" id="campoNinos"><label>Niños</label>
+          <div class="contador" data-c="ninos"><button type="button">−</button><output>0</output><button type="button">+</button></div>
+          <div id="listaNinos"></div></div>
+        <div class="campo"><label>¿Alguna alergia o intolerancia?</label>
+          <div class="opciones mini"><label><input type="radio" name="alerg" value="Sí"><span>Sí</span></label>
+            <label><input type="radio" name="alerg" value="No" checked><span>No</span></label></div>
+          <div id="bloqueAlerg" class="oculto"><input type="text" id="alergias" placeholder="Quién y qué (ej.: Ana, sin gluten)"></div></div>
+      </div>
+      <div class="campo"><label>¿Algo que quieras decirnos? (opcional)</label><textarea name="comentario"></textarea></div>
+      <button class="enviar" id="btn">Enviar respuesta</button>
+      <p class="limite">Por favor, responde antes del 1 de marzo de 2027</p>
+    </form>
+    <div id="gracias" class="gracias oculto"><p id="msgGracias">¡Gracias!</p></div>
+  </section>
+</main>
+
+<script>
+// ⚠️ Pega aquí la URL de tu Apps Script (Implementar > Aplicación web)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlyL8bsaKnso1fL743UpML7ZXVz52OxkOUp5O3BaMHuPCPgUtfDFcZHUyjH0m5c1gw/exec";
+
+carta.innerHTML = document.querySelector(".t1").outerHTML;
+document.querySelectorAll("svg image").forEach(i => { const t = new Image(); t.onerror = () => i.remove(); t.src = i.getAttribute("href"); });
+const q = new URLSearchParams(location.search);
+const invitado = q.get("n") || "";            // ?n=Familia García
+const maxAdultos = +(q.get("a") || 2);         // &a=2
+const permiteNinos = q.get("k") !== "0";       // &k=0 oculta niños
+if (invitado) { para.textContent = invitado; saludo.textContent = invitado + ", confírmanos tu asistencia"; }
+if (!permiteNinos) campoNinos.style.display = "none";
+
+const s = document.getElementById("sobre");
+s.addEventListener("click", () => {
+  if (s.classList.contains("abierto")) return;
+  s.classList.add("abierto"); document.querySelector(".toca").style.opacity = 0;
+  setTimeout(() => s.classList.add("sale"), 2000);
+  setTimeout(() => { escena.classList.add("fuera"); main.classList.add("visible"); }, 2500);
+});
+
+const val = { adultos: 1, ninos: 0 }, lim = { adultos: [1, maxAdultos], ninos: [0, 8] };
+document.querySelectorAll(".contador").forEach(c => {
+  const k = c.dataset.c, [menos, out, mas] = c.children;
+  const set = v => { val[k] = Math.max(lim[k][0], Math.min(lim[k][1], v)); out.value = out.textContent = val[k]; if (k === "ninos") pintaNinos(); else pintaAdultos(); };
+  menos.onclick = () => set(val[k] - 1); mas.onclick = () => set(val[k] + 1);
+});
+function pintaAdultos() {
+  const l = listaAdultos, prev = [...l.querySelectorAll("input")].map(i => i.value);
+  l.innerHTML = "";
+  for (let i = 1; i < val.adultos; i++) l.insertAdjacentHTML("beforeend",
+    `<div class="nino" style="grid-template-columns:1fr"><input type="text" placeholder="Nombre del acompañante${val.adultos > 2 ? " " + i : ""}" value="${prev[i-1]||""}"></div>`);
+}
+function pintaNinos() {
+  const l = listaNinos, prev = [...l.querySelectorAll("input")].map(i => i.value);
+  l.innerHTML = "";
+  for (let i = 0; i < val.ninos; i++) l.insertAdjacentHTML("beforeend",
+    `<div class="nino"><input type="text" placeholder="Nombre niño/a ${i+1}" value="${prev[i*2]||""}"><input type="number" min="0" max="17" placeholder="Edad" value="${prev[i*2+1]||""}"></div>`);
+}
+form.alerg.forEach(r => r.onchange = () => bloqueAlerg.classList.toggle("oculto", form.alerg.value !== "Sí"));
+form.asiste.forEach(r => r.onchange = () => bloqueSi.classList.toggle("oculto", form.asiste.value !== "Sí"));
+
+form.onsubmit = async e => {
+  e.preventDefault();
+  const si = form.asiste.value === "Sí";
+  const ninos = [...listaNinos.querySelectorAll(".nino")].map(d => { const [n, a] = d.querySelectorAll("input"); return `${n.value || "?"} (${a.value || "?"})`; });
+  const acomp = [...listaAdultos.querySelectorAll("input")].map(i => i.value || "?");
+  const datos = { alergias: si && form.alerg.value === "Sí" ? (alergias.value || "Sí (sin detallar)") : "", acompanantes: si ? acomp.join(", ") : "", invitado, asiste: form.asiste.value, adultos: si ? val.adultos : 0, ninos: si ? val.ninos : 0,
+                  detalleNinos: si ? ninos.join(", ") : "", comentario: form.comentario.value };
+  btn.disabled = true; btn.textContent = "Enviando…";
+  try {
+    await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(datos) });
+    form.classList.add("oculto"); gracias.classList.remove("oculto");
+    msgGracias.textContent = si ? "¡Qué ilusión! Nos vemos el 28 💛" : "¡Te echaremos de menos! Gracias por avisar 💛";
+  } catch { btn.disabled = false; btn.textContent = "Reintentar"; alert("No se pudo enviar. Prueba de nuevo."); }
+};
+</script>
+</body>
+</html>
