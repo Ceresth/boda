@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<link rel="preload" as="image" href="sobre-sin.jpg">
+<link rel="preload" as="image" href="sobre.jpg">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -36,6 +38,7 @@ body{font-family:'Lora',serif;color:var(--tinta);background:#e9e4da;overflow-x:h
 .img-sobre{position:absolute;inset:0;background:url(sobre-sin.jpg) center/100% 100%}
 .sobre .bolsillo{clip-path:polygon(0 6%,49.5% 60%,100% 4%,100% 100%,0 100%);z-index:2}
 .dir{position:absolute;left:0;right:0;top:72%;text-align:center;z-index:2;color:#f1f4e8;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.sobre.espera-img{opacity:0}
 .dir{transition:opacity .5s}.dir.cargando{opacity:0}
 .dir small{font-family:'Gochi Hand';font-size:15px;opacity:.9}.dir div{font-family:'Caveat';font-size:clamp(22px,6.5vw,30px);line-height:1}
 .solapa{position:absolute;inset:0;transform-origin:top;transform-style:preserve-3d;transition:transform .8s ease;z-index:3}
@@ -47,7 +50,7 @@ body{font-family:'Lora',serif;color:var(--tinta);background:#e9e4da;overflow-x:h
   font-size:clamp(20px,6vw,28px);color:#9dbb8f;text-shadow:-1px -1px 0 rgba(255,255,255,.18),1px 1px 1px rgba(0,0,0,.45);letter-spacing:1px}
 .sobre.abierto .sello{opacity:0;transform:scale(1.25)}
 .sobre.abierto .solapa{transform:rotateX(180deg);z-index:0;transition:transform .8s ease,z-index 0s .4s}
-.sobre{transition:transform 1.2s .7s cubic-bezier(.45,0,.2,1)}
+.sobre{transition:opacity .4s,transform 1.2s .7s cubic-bezier(.45,0,.2,1)}
 .sobre.abierto{transform:translateY(45%)}
 .sobre.abierto .carta{transform:translateY(-85%)}
 .sobre.sale .carta{transform:translateY(-85%) scale(1.08);transition:transform .8s}
@@ -126,7 +129,7 @@ textarea{min-height:70px;resize:vertical}
 
 <!-- SOBRE -->
 <div id="escena">
-  <div class="sobre" id="sobre">
+  <div class="sobre espera-img" id="sobre">
     <div class="interior"></div>
     <div class="carta-wrap"><div class="carta" id="carta"></div></div>
     <div class="img-sobre bolsillo"></div>
@@ -222,6 +225,9 @@ else fetch(SCRIPT_URL + "?id=" + encodeURIComponent(id)).then(r => r.json()).the
   else if (r.acompanante) { setters.adultos(2); listaAdultos.querySelector("input").value = r.acompanante; }
 }).catch(sinAcceso);
 
+Promise.all(["sobre-sin.jpg", "sobre.jpg"].map(src => new Promise(ok => { const i = new Image(); i.onload = i.onerror = ok; i.src = src; })))
+  .then(() => sobre.classList.remove("espera-img"));
+setTimeout(() => sobre.classList.remove("espera-img"), 4000);
 const s = document.getElementById("sobre");
 s.addEventListener("click", () => {
   if (!listo || s.classList.contains("abierto")) return;
@@ -248,7 +254,7 @@ function edadHTML(i) {
 }
 function ponEdad(d, v) {
   const [, e, b] = d.children, mas = v === "+20";
-  b.classList.toggle("on", mas); e.disabled = mas; e.value = mas ? "" : (v ?? "");
+  b.classList.toggle("on", mas); e.value = mas ? "" : (v ?? "");
   e.placeholder = mas ? "+20" : "Edad";
 }
 function leeEdad(d) { const [, e, b] = d.children; return b.classList.contains("on") ? "+20" : e.value; }
@@ -260,7 +266,9 @@ function pintaNinos() {
     const d = l.lastElementChild, [n, e, b] = d.children;
     if (prev[i]) { n.value = prev[i][0]; ponEdad(d, prev[i][1]); }
     b.onclick = () => ponEdad(d, b.classList.contains("on") ? "" : "+20");
-    e.oninput = () => { if (+e.value > 20) ponEdad(d, "+20"); else if (e.value < 0) e.value = 0; };
+    e.onfocus = () => { if (b.classList.contains("on")) ponEdad(d, ""); };
+    e.oninput = () => { if (b.classList.contains("on")) { b.classList.remove("on"); e.placeholder = "Edad"; }
+      if (+e.value > 20) { ponEdad(d, "+20"); e.blur(); } else if (e.value < 0) e.value = 0; };
   }
 }
 function personas() {
@@ -281,7 +289,7 @@ function pintaAlerg(pre) {
   });
 }
 listaAdultos.addEventListener("input", () => pintaAlerg());
-form.addEventListener("input", e => e.target.classList.remove("error"));
+form.addEventListener("input", e => { e.target.classList.remove("error"); if (!form.querySelector(".error")) errmsg.classList.add("oculto"); });
 form.addEventListener("click", e => { if (e.target.classList.contains("mas20")) e.target.previousElementSibling.classList.remove("error"); });
 listaNinos.addEventListener("input", e => { if (e.target.type === "text") pintaAlerg(); });
 function rellena(u, fecha) {
