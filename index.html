@@ -101,6 +101,8 @@ textarea{min-height:70px;resize:vertical}
 .enviar{width:100%;padding:15px;border:0;border-radius:30px;background:var(--azul);color:#fff;font-family:'Gochi Hand';font-size:22px;cursor:pointer;margin-top:6px}
 .enviar:disabled{opacity:.5}
 .oculto{display:none}
+.previa{background:#e6efe0;border-radius:10px;padding:10px 12px;font-size:14px;text-align:center;margin:-6px 0 16px;color:#2f4a2a}
+.aviso{font-family:'Caveat';font-size:30px;color:var(--azul);text-align:center;max-width:320px;line-height:1.2}
 .gracias{text-align:center;padding:20px 0}
 .gracias p{font-family:'Caveat';font-size:32px;color:var(--azul)}
 .limite{text-align:center;font-size:13px;color:#888;margin-top:12px}
@@ -183,6 +185,7 @@ textarea{min-height:70px;resize:vertical}
     <form id="form">
       <h2>¿Nos acompañas?</h2>
       <p class="sub" id="saludo">Confírmanos tu asistencia</p>
+      <p class="previa oculto" id="previa"></p>
       <div class="opciones">
         <label><input type="radio" name="asiste" value="Sí" required><span>¡Allí estaré!</span></label>
         <label><input type="radio" name="asiste" value="No"><span>No podré ir</span></label>
@@ -191,7 +194,7 @@ textarea{min-height:70px;resize:vertical}
         <div class="campo"><label>Adultos que asistiréis (contándote a ti)</label>
           <div class="contador" data-c="adultos"><button type="button">−</button><output>1</output><button type="button">+</button></div>
           <div id="listaAdultos"></div></div>
-        <div class="campo" id="campoNinos"><label>Niños</label>
+        <div class="campo" id="campoNinos"><label>Hij@s</label>
           <div class="contador" data-c="ninos"><button type="button">−</button><output>0</output><button type="button">+</button></div>
           <div id="listaNinos"></div></div>
         <div class="campo"><label>¿Alguna alergia o intolerancia?</label>
@@ -211,40 +214,68 @@ textarea{min-height:70px;resize:vertical}
 // ⚠️ Pega aquí la URL de tu Apps Script (Implementar > Aplicación web)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlyL8bsaKnso1fL743UpML7ZXVz52OxkOUp5O3BaMHuPCPgUtfDFcZHUyjH0m5c1gw/exec";
 
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
 carta.innerHTML = document.querySelector(".t1").outerHTML;
 document.querySelectorAll("svg image").forEach(i => { const t = new Image(); t.onerror = () => i.remove(); t.src = i.getAttribute("href"); });
-const q = new URLSearchParams(location.search);
-const invitado = q.get("n") || "";            // ?n=Familia García
-const maxAdultos = +(q.get("a") || 2);         // &a=2
-const permiteNinos = q.get("k") !== "0";       // &k=0 oculta niños
-if (invitado) { para.textContent = invitado; saludo.textContent = invitado + ", confírmanos tu asistencia"; }
-if (!permiteNinos) campoNinos.style.display = "none";
+const id = (new URLSearchParams(location.search).get("id") || "").trim();
+let invitado = "", listo = false;
+const toca = document.querySelector(".toca");
+toca.textContent = "un momento…";
+function sinAcceso() {
+  sobre.style.display = "none"; toca.style.display = "none";
+  escena.insertAdjacentHTML("afterbegin", '<div class="aviso">Abre la invitación desde el enlace que te hemos enviado 💌</div>');
+}
+if (!id) sinAcceso();
+else fetch(SCRIPT_URL + "?id=" + encodeURIComponent(id)).then(r => r.json()).then(r => {
+  if (!r.ok) return sinAcceso();
+  invitado = r.nombre; listo = true;
+  para.textContent = invitado; saludo.textContent = invitado + ", confírmanos tu asistencia";
+  toca.textContent = "toca el sobre para abrirlo";
+  if (r.ultima) rellena(r.ultima, r.fecha);
+}).catch(sinAcceso);
 
 const s = document.getElementById("sobre");
 s.addEventListener("click", () => {
-  if (s.classList.contains("abierto")) return;
+  if (!listo || s.classList.contains("abierto")) return;
   s.classList.add("abierto"); document.querySelector(".toca").style.opacity = 0;
   setTimeout(() => s.classList.add("sale"), 2000);
-  setTimeout(() => { escena.classList.add("fuera"); main.classList.add("visible"); }, 2500);
+  setTimeout(() => { window.scrollTo(0, 0); escena.classList.add("fuera"); main.classList.add("visible"); }, 2500);
 });
 
-const val = { adultos: 1, ninos: 0 }, lim = { adultos: [1, maxAdultos], ninos: [0, 8] };
+const val = { adultos: 1, ninos: 0 }, lim = { adultos: [1, 2], ninos: [0, 8] };
+const setters = {};
 document.querySelectorAll(".contador").forEach(c => {
   const k = c.dataset.c, [menos, out, mas] = c.children;
-  const set = v => { val[k] = Math.max(lim[k][0], Math.min(lim[k][1], v)); out.value = out.textContent = val[k]; if (k === "ninos") pintaNinos(); else pintaAdultos(); };
+  const set = setters[k] = v => { val[k] = Math.max(lim[k][0], Math.min(lim[k][1], v)); out.value = out.textContent = val[k]; if (k === "ninos") pintaNinos(); else pintaAdultos(); };
   menos.onclick = () => set(val[k] - 1); mas.onclick = () => set(val[k] + 1);
 });
 function pintaAdultos() {
   const l = listaAdultos, prev = [...l.querySelectorAll("input")].map(i => i.value);
   l.innerHTML = "";
   for (let i = 1; i < val.adultos; i++) l.insertAdjacentHTML("beforeend",
-    `<div class="nino" style="grid-template-columns:1fr"><input type="text" placeholder="Nombre del acompañante${val.adultos > 2 ? " " + i : ""}" value="${prev[i-1]||""}"></div>`);
+    `<div class="nino" style="grid-template-columns:1fr"><input type="text" placeholder="Nombre del acompañante" value="${prev[i-1]||""}"></div>`);
 }
 function pintaNinos() {
   const l = listaNinos, prev = [...l.querySelectorAll("input")].map(i => i.value);
   l.innerHTML = "";
   for (let i = 0; i < val.ninos; i++) l.insertAdjacentHTML("beforeend",
-    `<div class="nino"><input type="text" placeholder="Nombre niño/a ${i+1}" value="${prev[i*2]||""}"><input type="number" min="0" max="17" placeholder="Edad" value="${prev[i*2+1]||""}"></div>`);
+    `<div class="nino"><input type="text" placeholder="Nombre hij@ ${i+1}" value="${prev[i*2]||""}"><input type="number" min="0" max="17" placeholder="Edad" value="${prev[i*2+1]||""}"></div>`);
+}
+function rellena(u, fecha) {
+  const marca = (n, v) => form[n].forEach(r => { r.checked = r.value === v; r.onchange && r.onchange(); });
+  marca("asiste", u.asiste);
+  if (u.asiste === "Sí") {
+    setters.adultos(u.adultos || 1);
+    const ia = listaAdultos.querySelector("input"); if (ia) ia.value = u.acompanante || "";
+    setters.ninos(u.hijos ? u.hijos.length : 0);
+    listaNinos.querySelectorAll(".nino").forEach((d, i) => { const [n, e] = d.querySelectorAll("input"); n.value = u.hijos[i].nombre; e.value = u.hijos[i].edad; });
+    marca("alerg", u.alergias ? "Sí" : "No"); alergias.value = u.alergias || "";
+  }
+  form.comentario.value = u.comentario || "";
+  const res = u.asiste === "Sí" ? `venís ${u.adultos} adulto${u.adultos > 1 ? "s" : ""}` + (u.hijos && u.hijos.length ? ` y ${u.hijos.length} hij@${u.hijos.length > 1 ? "s" : ""}` : "") : "no podréis venir";
+  previa.textContent = `Ya nos respondiste el ${fecha}: ${res} 💚 ¿Quieres cambiar algo?`;
+  previa.classList.remove("oculto"); btn.textContent = "Actualizar respuesta";
 }
 form.alerg.forEach(r => r.onchange = () => bloqueAlerg.classList.toggle("oculto", form.alerg.value !== "Sí"));
 form.asiste.forEach(r => r.onchange = () => bloqueSi.classList.toggle("oculto", form.asiste.value !== "Sí"));
@@ -252,10 +283,12 @@ form.asiste.forEach(r => r.onchange = () => bloqueSi.classList.toggle("oculto", 
 form.onsubmit = async e => {
   e.preventDefault();
   const si = form.asiste.value === "Sí";
-  const ninos = [...listaNinos.querySelectorAll(".nino")].map(d => { const [n, a] = d.querySelectorAll("input"); return `${n.value || "?"} (${a.value || "?"})`; });
-  const acomp = [...listaAdultos.querySelectorAll("input")].map(i => i.value || "?");
-  const datos = { alergias: si && form.alerg.value === "Sí" ? (alergias.value || "Sí (sin detallar)") : "", acompanantes: si ? acomp.join(", ") : "", invitado, asiste: form.asiste.value, adultos: si ? val.adultos : 0, ninos: si ? val.ninos : 0,
-                  detalleNinos: si ? ninos.join(", ") : "", comentario: form.comentario.value };
+  const hijos = si ? [...listaNinos.querySelectorAll(".nino")].map(d => { const [n, a] = d.querySelectorAll("input"); return { nombre: n.value.trim(), edad: a.value }; }) : [];
+  const ia = listaAdultos.querySelector("input");
+  const datos = { id, asiste: form.asiste.value, adultos: si ? val.adultos : 0,
+    acompanante: si && ia ? ia.value.trim() : "", hijos,
+    alergias: si && form.alerg.value === "Sí" ? (alergias.value.trim() || "Sí (sin detallar)") : "",
+    comentario: form.comentario.value.trim() };
   btn.disabled = true; btn.textContent = "Enviando…";
   try {
     await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(datos) });
