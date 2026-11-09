@@ -96,8 +96,12 @@ main.visible{opacity:1}
 .contador button{width:40px;height:40px;border-radius:50%;border:2px solid var(--azul);background:none;color:var(--azul);font-size:22px;cursor:pointer}
 .contador output{font-family:'Caveat';font-size:32px;min-width:22px;text-align:center}
 .opciones.mini{margin-bottom:8px}.opciones.mini span{padding:9px 8px;font-size:17px}
+.nino.edad{grid-template-columns:1fr 72px 56px}
+.mas20{border:1.5px solid #c9c2b4;border-radius:8px;background:#fffdf8;font:inherit;font-size:15px;color:#777;cursor:pointer}
+.mas20.on{background:var(--azul);border-color:var(--azul);color:#fff}
+input:disabled{background:#efeae0}
 .nino{display:grid;grid-template-columns:1fr 80px;gap:8px;margin-top:8px}
-input[type=text],input[type=number],textarea{width:100%;padding:11px 12px;border:1.5px solid #c9c2b4;border-radius:8px;font:inherit;font-size:16px;background:#fffdf8}
+input[type=text],input[type=number],select,textarea{width:100%;padding:11px 12px;border:1.5px solid #c9c2b4;border-radius:8px;font:inherit;font-size:16px;background:#fffdf8}
 textarea{min-height:70px;resize:vertical}
 .enviar{width:100%;padding:15px;border:0;border-radius:30px;background:var(--azul);color:#fff;font-family:'Gochi Hand';font-size:22px;cursor:pointer;margin-top:6px}
 .enviar:disabled{opacity:.5}
@@ -220,11 +224,25 @@ function pintaAdultos() {
   for (let i = 1; i < val.adultos; i++) l.insertAdjacentHTML("beforeend",
     `<div class="nino" style="grid-template-columns:1fr"><input type="text" placeholder="Nombre del acompañante" value="${prev[i-1]||""}"></div>`);
 }
+function edadHTML(i) {
+  return `<div class="nino edad"><input type="text" placeholder="Nombre hij@ ${i+1}"><input type="number" min="0" max="20" inputmode="numeric" placeholder="Edad"><button type="button" class="mas20">+20</button></div>`;
+}
+function ponEdad(d, v) {
+  const [, e, b] = d.children, mas = v === "+20";
+  b.classList.toggle("on", mas); e.disabled = mas; e.value = mas ? "" : (v ?? "");
+  e.placeholder = mas ? "+20" : "Edad";
+}
+function leeEdad(d) { const [, e, b] = d.children; return b.classList.contains("on") ? "+20" : e.value; }
 function pintaNinos() {
-  const l = listaNinos, prev = [...l.querySelectorAll("input")].map(i => i.value);
+  const l = listaNinos, prev = [...l.querySelectorAll(".nino")].map(d => [d.children[0].value, leeEdad(d)]);
   l.innerHTML = "";
-  for (let i = 0; i < val.ninos; i++) l.insertAdjacentHTML("beforeend",
-    `<div class="nino"><input type="text" placeholder="Nombre hij@ ${i+1}" value="${prev[i*2]||""}"><input type="number" min="0" max="17" placeholder="Edad" value="${prev[i*2+1]||""}"></div>`);
+  for (let i = 0; i < val.ninos; i++) {
+    l.insertAdjacentHTML("beforeend", edadHTML(i));
+    const d = l.lastElementChild, [n, e, b] = d.children;
+    if (prev[i]) { n.value = prev[i][0]; ponEdad(d, prev[i][1]); }
+    b.onclick = () => ponEdad(d, b.classList.contains("on") ? "" : "+20");
+    e.oninput = () => { if (+e.value > 20) ponEdad(d, "+20"); else if (e.value < 0) e.value = 0; };
+  }
 }
 function rellena(u, fecha) {
   const marca = (n, v) => form[n].forEach(r => { r.checked = r.value === v; r.onchange && r.onchange(); });
@@ -233,7 +251,7 @@ function rellena(u, fecha) {
     setters.adultos(u.adultos || 1);
     const ia = listaAdultos.querySelector("input"); if (ia) ia.value = u.acompanante || "";
     setters.ninos(u.hijos ? u.hijos.length : 0);
-    listaNinos.querySelectorAll(".nino").forEach((d, i) => { const [n, e] = d.querySelectorAll("input"); n.value = u.hijos[i].nombre; e.value = u.hijos[i].edad; });
+    listaNinos.querySelectorAll(".nino").forEach((d, i) => { d.children[0].value = u.hijos[i].nombre; ponEdad(d, String(u.hijos[i].edad ?? "")); });
     marca("alerg", u.alergias ? "Sí" : "No"); alergias.value = u.alergias || "";
   }
   form.comentario.value = u.comentario || "";
@@ -247,7 +265,7 @@ form.asiste.forEach(r => r.onchange = () => bloqueSi.classList.toggle("oculto", 
 form.onsubmit = async e => {
   e.preventDefault();
   const si = form.asiste.value === "Sí";
-  const hijos = si ? [...listaNinos.querySelectorAll(".nino")].map(d => { const [n, a] = d.querySelectorAll("input"); return { nombre: n.value.trim(), edad: a.value }; }) : [];
+  const hijos = si ? [...listaNinos.querySelectorAll(".nino")].map(d => { return { nombre: d.children[0].value.trim(), edad: leeEdad(d) }; }) : [];
   const ia = listaAdultos.querySelector("input");
   const datos = { id, asiste: form.asiste.value, adultos: si ? val.adultos : 0,
     acompanante: si && ia ? ia.value.trim() : "", hijos,
