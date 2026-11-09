@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Esther & Jaime · 28.08.2027</title>
 <!-- Vista previa en WhatsApp. Si cambia la dirección web, actualiza estas URLs -->
@@ -34,6 +36,7 @@ body{font-family:'Lora',serif;color:var(--tinta);background:#e9e4da;overflow-x:h
 .img-sobre{position:absolute;inset:0;background:url(sobre-sin.jpg) center/100% 100%}
 .sobre .bolsillo{clip-path:polygon(0 6%,49.5% 60%,100% 4%,100% 100%,0 100%);z-index:2}
 .dir{position:absolute;left:0;right:0;top:72%;text-align:center;z-index:2;color:#f1f4e8;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.dir{transition:opacity .5s}.dir.cargando{opacity:0}
 .dir small{font-family:'Gochi Hand';font-size:15px;opacity:.9}.dir div{font-family:'Caveat';font-size:clamp(22px,6.5vw,30px);line-height:1}
 .solapa{position:absolute;inset:0;transform-origin:top;transform-style:preserve-3d;transition:transform .8s ease;z-index:3}
 .solapa>div{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,100% 4%,49.5% 60%,0 6%);backface-visibility:hidden}
@@ -76,7 +79,7 @@ main.visible{opacity:1}
 .pt i.bl{font-size:4.8cqw;white-space:nowrap}
 .nombres{font:700 6cqw 'Caveat',cursive;white-space:nowrap}
 .titulo{font:700 7.6cqw 'Caveat',cursive;transform:rotate(-9deg);white-space:nowrap}
-.raya{position:absolute;width:3.2%;height:0;border-top:1.5px solid #2b2b2b}
+.raya{position:absolute;width:4%;height:0;border-top:2px solid #262626;border-radius:2px}
 .pie{text-align:center;display:flex;flex-direction:column;gap:.6cqw;font:3.4cqw 'Lora',serif}
 .pie .f{font:700 6.4cqw 'Caveat',cursive}
 .pie a{font:3.8cqw 'Gochi Hand',cursive;color:#1f3a7a}
@@ -122,7 +125,7 @@ textarea{min-height:70px;resize:vertical}
     <div class="interior"></div>
     <div class="carta-wrap"><div class="carta" id="carta"></div></div>
     <div class="img-sobre bolsillo"></div>
-    <div class="dir"><small>Para</small><div id="para">ti</div></div>
+    <div class="dir" id="dir"><small>Para</small><div id="para"></div></div>
     <div class="solapa"><div class="img-sobre"></div><div class="int"></div></div>
     <div class="sello"><span>E&J</span></div>
   </div>
@@ -139,12 +142,15 @@ textarea{min-height:70px;resize:vertical}
     <div class="pt nombres" style="left:39%;top:3%;transform:translateX(-50%)">Esther & Jaime</div>
     <div class="pt titulo" style="left:7.5%;top:22.6%">Nuestro día</div>
     <div class="pt der" style="right:56.2%;top:29.5%"><b>Recepción</b><i>20:30</i></div>
-    <div class="pt" style="left:61.4%;top:37.0%"><b>Ceremonia</b><i>21:00</i></div>
-    <div class="pt der" style="right:56.2%;top:46.2%"><b>Cóctel</b><i>21:30</i></div>
-    <div class="raya" style="left:53.2%;top:51.6%"></div>
-    <div class="pt" style="left:61.4%;top:50.3%"><b>Cena</b><i>22:30</i></div>
-    <div class="pt der" style="right:57.6%;top:56.2%"><b>Barra libre</b><i class="bl">00:30 – 04:30</i></div>
-    <div class="raya" style="left:43.2%;top:57.5%"></div>
+    <div class="raya" style="left:44.2%;top:30.75%"></div>
+    <div class="pt" style="left:61.4%;top:35.5%"><b>Ceremonia</b><i>21:00</i></div>
+    <div class="raya" style="left:55.4%;top:36.75%"></div>
+    <div class="pt der" style="right:56.2%;top:42.5%"><b>Cóctel</b><i>21:30</i></div>
+    <div class="raya" style="left:44.2%;top:43.75%"></div>
+    <div class="pt" style="left:61.4%;top:49.5%"><b>Cena</b><i>22:30</i></div>
+    <div class="raya" style="left:55.4%;top:50.75%"></div>
+    <div class="pt der" style="right:56.2%;top:56.2%"><b>Barra libre</b><i class="bl">00:30 – 04:30</i></div>
+    <div class="raya" style="left:44.2%;top:57.45%"></div>
     <div class="pt pie" style="left:0;right:0;top:85.5%">
       <span class="f">Sábado, 28 de agosto de 2027</span>
       <span>El Señorío de Ajuria · C. Litio, 1, Fuenlabrada</span>
@@ -192,6 +198,9 @@ const id = (new URLSearchParams(location.search).get("id") || "").trim();
 let invitado = "", listo = false;
 const toca = document.querySelector(".toca");
 toca.textContent = "un momento…";
+const guardado = (() => { try { return localStorage.getItem("boda-" + id); } catch { return null; } })();
+function ponNombre(n) { para.textContent = n; dir.classList.remove("cargando"); }
+if (guardado) ponNombre(guardado); else dir.classList.add("cargando");
 function sinAcceso() {
   sobre.style.display = "none"; toca.style.display = "none";
   escena.insertAdjacentHTML("afterbegin", '<div class="aviso">Abre la invitación desde el enlace que te hemos enviado 💌</div>');
@@ -200,9 +209,11 @@ if (!id) sinAcceso();
 else fetch(SCRIPT_URL + "?id=" + encodeURIComponent(id)).then(r => r.json()).then(r => {
   if (!r.ok) return sinAcceso();
   invitado = r.nombre; listo = true;
-  para.textContent = invitado; saludo.textContent = invitado + ", confírmanos tu asistencia";
+  try { localStorage.setItem("boda-" + id, invitado); } catch {}
+  ponNombre(invitado); saludo.textContent = invitado + ", confírmanos tu asistencia";
   toca.textContent = "toca el sobre para abrirlo";
   if (r.ultima) rellena(r.ultima, r.fecha);
+  else if (r.acompanante) { setters.adultos(2); listaAdultos.querySelector("input").value = r.acompanante; }
 }).catch(sinAcceso);
 
 const s = document.getElementById("sobre");
