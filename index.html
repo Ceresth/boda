@@ -56,7 +56,8 @@ body{font-family:'Lora',serif;color:var(--tinta);background:#e9e4da;overflow-x:h
 main{max-width:520px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:22px;opacity:0;transition:opacity 1s}
 main.visible{opacity:1}
 .tarjeta{position:relative;border-radius:4px;box-shadow:0 10px 26px rgba(0,0,0,.14);overflow:hidden}
-.t1{container-type:inline-size;background:var(--verde);aspect-ratio:4/5;padding:9% 8% 0;text-align:center;color:var(--azul)}
+.t1 img{display:block;width:100%;height:100%;object-fit:cover}
+.t1{container-type:inline-size;padding:0!important;background:var(--verde);aspect-ratio:4/5;padding:9% 8% 0;text-align:center;color:var(--azul)}
 .t1 .marco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .t1 h1{font-family:'Gochi Hand';font-weight:400;font-size:8.5cqw;line-height:1.2;margin-top:1.5cqw}
 .t1 .fecha{font-family:'Lora';font-weight:600;font-size:6.8cqw;letter-spacing:.3cqw;margin-top:2.5cqw}
@@ -125,43 +126,7 @@ textarea{min-height:70px;resize:vertical}
 
 <main id="main">
   <!-- TARJETA 1 -->
-  <section class="tarjeta t1">
-    <svg class="marco" viewBox="0 0 400 500" preserveAspectRatio="none" fill="none" stroke="#1f3a7a" stroke-width="2.2" stroke-linecap="round">
-      <path d="M14 18 C120 12 280 16 386 14 C390 140 384 330 388 484 C260 488 130 482 12 486 C16 330 10 160 14 18"/>
-      <path d="M20 12 C150 18 270 10 380 20 C384 170 392 320 382 478 C250 482 140 490 18 480 C10 320 20 150 20 12"/>
-    </svg>
-    <div class="hand" style="font-size:6.5cqw">♡</div>
-    <h1>¡Estos niños<br>se casan!</h1>
-    <div class="fecha">28.08.2027</div>
-    <div class="pareja">
-      <span class="nombre n1">Esther</span>
-      <svg class="flecha f1" viewBox="0 0 60 70" fill="none" stroke="#1f3a7a" stroke-width="2" stroke-linecap="round"><path d="M10 6 C6 30 14 52 50 62"/><path d="M4 16 L10 5 L17 15"/></svg>
-      <span class="nombre n2">Jaime</span>
-      <svg class="flecha f2" viewBox="0 0 60 70" fill="none" stroke="#1f3a7a" stroke-width="2" stroke-linecap="round"><path d="M10 6 C6 30 14 52 50 62"/><path d="M4 16 L10 5 L17 15"/></svg>
-      <svg class="cuerpos" viewBox="0 0 300 310">
-        <defs>
-          <clipPath id="cE"><ellipse cx="95" cy="95" rx="62" ry="70"/></clipPath>
-          <clipPath id="cJ"><ellipse cx="205" cy="92" rx="58" ry="68"/></clipPath>
-        </defs>
-        <!-- Ella: vestido -->
-        <path d="M60 180 Q95 168 130 180 L158 310 L32 310 Z" fill="#f6ecdc"/>
-        <path d="M58 182 Q46 196 52 214 L72 206 Z M132 182 Q144 196 138 214 L118 206 Z" fill="#f6ecdc" stroke="#e5d8c2"/>
-        <path d="M70 215 Q95 240 120 215" stroke="#e8c39e" stroke-width="13" fill="none" stroke-linecap="round"/>
-        <g stroke="#6b8a5c" stroke-width="3"><path d="M95 230 L88 275 M95 230 L100 278 M95 230 L94 280"/></g>
-        <g fill="#fff" stroke="#6b8a5c" stroke-width="2"><circle cx="82" cy="215" r="10"/><circle cx="104" cy="208" r="10"/><circle cx="96" cy="226" r="9"/></g>
-        <!-- Él: traje -->
-        <path d="M170 172 Q205 162 240 172 L250 310 L160 310 Z" fill="#3e5236"/>
-        <path d="M190 168 L205 230 L220 168 Z" fill="#e9dccb"/>
-        <path d="M190 168 L200 215 L186 190 Z M220 168 L210 215 L224 190 Z" fill="#2f4129"/>
-        <circle cx="246" cy="282" r="9" fill="#e8c39e"/>
-        <!-- Caras: sustituye esther.png y jaime.png por fotos de pequeños recortadas -->
-        <g clip-path="url(#cE)"><rect x="30" y="20" width="130" height="150" fill="#e9d6c2"/>
-          <image href="esther.png" x="28" y="20" width="134" height="150" preserveAspectRatio="xMidYMid slice"/></g>
-        <g clip-path="url(#cJ)"><rect x="145" y="20" width="120" height="145" fill="#ead9c6"/>
-          <image href="jaime.png" x="145" y="20" width="120" height="145" preserveAspectRatio="xMidYMid slice"/></g>
-      </svg>
-    </div>
-  </section>
+  <section class="tarjeta t1"><img src="ninos.jpg" alt="¡Estos niños se casan! 28.08.2027 · Esther y Jaime"></section>
 
   <!-- TARJETA 2 -->
   <section class="tarjeta prog">
@@ -217,7 +182,6 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlyL8bsaKnso1fL743U
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 carta.innerHTML = document.querySelector(".t1").outerHTML;
-document.querySelectorAll("svg image").forEach(i => { const t = new Image(); t.onerror = () => i.remove(); t.src = i.getAttribute("href"); });
 const id = (new URLSearchParams(location.search).get("id") || "").trim();
 let invitado = "", listo = false;
 const toca = document.querySelector(".toca");
