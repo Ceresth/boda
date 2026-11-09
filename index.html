@@ -100,10 +100,15 @@ main.visible{opacity:1}
 .contador button{width:40px;height:40px;border-radius:50%;border:2px solid var(--azul);background:none;color:var(--azul);font-size:22px;cursor:pointer}
 .contador output{font-family:'Caveat';font-size:32px;min-width:22px;text-align:center}
 .opciones.mini{margin-bottom:8px}.opciones.mini span{padding:9px 8px;font-size:17px}
-.nino.edad{grid-template-columns:1fr 72px 56px}
+.nino.edad{grid-template-columns:1fr 84px 56px}
 .mas20{border:1.5px solid #c9c2b4;border-radius:8px;background:#fffdf8;font:inherit;font-size:15px;color:#777;cursor:pointer}
 .mas20.on{background:var(--azul);border-color:var(--azul);color:#fff}
 input:disabled{background:#efeae0}
+.ayuda{font-size:13px;color:#777;margin:2px 0 6px}
+.fila-al{display:grid;grid-template-columns:minmax(70px,auto) 1fr;gap:8px;align-items:center;margin-top:8px}
+.fila-al span{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.error{border-color:#c0392b!important;background:#fdf1ef!important}
+.errmsg{color:#c0392b;font-size:14px;text-align:center;margin:6px 0 0}
 .nino{display:grid;grid-template-columns:1fr 80px;gap:8px;margin-top:8px}
 input[type=text],input[type=number],select,textarea{width:100%;padding:11px 12px;border:1.5px solid #c9c2b4;border-radius:8px;font:inherit;font-size:16px;background:#fffdf8}
 textarea{min-height:70px;resize:vertical}
@@ -177,9 +182,10 @@ textarea{min-height:70px;resize:vertical}
         <div class="campo"><label>¿Alguna alergia o intolerancia?</label>
           <div class="opciones mini"><label><input type="radio" name="alerg" value="Sí"><span>Sí</span></label>
             <label><input type="radio" name="alerg" value="No" checked><span>No</span></label></div>
-          <div id="bloqueAlerg" class="oculto"><input type="text" id="alergias" placeholder="Quién y qué (ej.: Ana, sin gluten)"></div></div>
+          <div id="bloqueAlerg" class="oculto"><p class="ayuda">Escríbela junto a quien la tenga:</p><div id="listaAlerg"></div></div></div>
       </div>
       <div class="campo"><label>¿Algo que quieras decirnos? (opcional)</label><textarea name="comentario"></textarea></div>
+      <p class="errmsg oculto" id="errmsg"></p>
       <button class="enviar" id="btn">Enviar respuesta</button>
       <p class="limite">Por favor, responde antes del 1 de marzo de 2027</p>
     </form>
@@ -195,7 +201,7 @@ if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 carta.innerHTML = document.querySelector(".t1").outerHTML;
 const id = (new URLSearchParams(location.search).get("id") || "").trim();
-let invitado = "", listo = false;
+let invitado = "", titular = "", listo = false;
 const toca = document.querySelector(".toca");
 toca.textContent = "un momento…";
 const guardado = (() => { try { return localStorage.getItem("boda-" + id); } catch { return null; } })();
@@ -208,7 +214,7 @@ function sinAcceso() {
 if (!id) sinAcceso();
 else fetch(SCRIPT_URL + "?id=" + encodeURIComponent(id)).then(r => r.json()).then(r => {
   if (!r.ok) return sinAcceso();
-  invitado = r.nombre; listo = true;
+  invitado = r.nombre; titular = r.invitado || ""; listo = true;
   try { localStorage.setItem("boda-" + id, invitado); } catch {}
   ponNombre(invitado); saludo.textContent = invitado + ", confírmanos tu asistencia";
   toca.textContent = "toca el sobre para abrirlo";
@@ -228,7 +234,7 @@ const val = { adultos: 1, ninos: 0 }, lim = { adultos: [1, 2], ninos: [0, 8] };
 const setters = {};
 document.querySelectorAll(".contador").forEach(c => {
   const k = c.dataset.c, [menos, out, mas] = c.children;
-  const set = setters[k] = v => { val[k] = Math.max(lim[k][0], Math.min(lim[k][1], v)); out.value = out.textContent = val[k]; if (k === "ninos") pintaNinos(); else pintaAdultos(); };
+  const set = setters[k] = v => { val[k] = Math.max(lim[k][0], Math.min(lim[k][1], v)); out.value = out.textContent = val[k]; if (k === "ninos") pintaNinos(); else pintaAdultos(); pintaAlerg(); };
   menos.onclick = () => set(val[k] - 1); mas.onclick = () => set(val[k] + 1);
 });
 function pintaAdultos() {
@@ -257,6 +263,27 @@ function pintaNinos() {
     e.oninput = () => { if (+e.value > 20) ponEdad(d, "+20"); else if (e.value < 0) e.value = 0; };
   }
 }
+function personas() {
+  const p = [{ k: "yo", n: titular || "Tú" }];
+  const ia = listaAdultos.querySelector("input");
+  if (val.adultos > 1) p.push({ k: "ac", n: (ia && ia.value.trim()) || "Acompañante" });
+  listaNinos.querySelectorAll(".nino").forEach((d, i) => p.push({ k: "h" + i, n: d.children[0].value.trim() || `Hij@ ${i + 1}` }));
+  return p;
+}
+function pintaAlerg(pre) {
+  const prev = pre || Object.fromEntries([...listaAlerg.querySelectorAll("input")].map(i => [i.dataset.k, i.value]));
+  listaAlerg.innerHTML = "";
+  personas().forEach(({ k, n }) => {
+    const f = document.createElement("div"); f.className = "fila-al";
+    f.innerHTML = '<span></span><input type="text" placeholder="Ej.: sin gluten">';
+    f.children[0].textContent = n; const inp = f.children[1]; inp.dataset.k = k; inp.dataset.n = n; inp.value = prev[k] || "";
+    listaAlerg.appendChild(f);
+  });
+}
+listaAdultos.addEventListener("input", () => pintaAlerg());
+form.addEventListener("input", e => e.target.classList.remove("error"));
+form.addEventListener("click", e => { if (e.target.classList.contains("mas20")) e.target.previousElementSibling.classList.remove("error"); });
+listaNinos.addEventListener("input", e => { if (e.target.type === "text") pintaAlerg(); });
 function rellena(u, fecha) {
   const marca = (n, v) => form[n].forEach(r => { r.checked = r.value === v; r.onchange && r.onchange(); });
   marca("asiste", u.asiste);
@@ -265,24 +292,44 @@ function rellena(u, fecha) {
     const ia = listaAdultos.querySelector("input"); if (ia) ia.value = u.acompanante || "";
     setters.ninos(u.hijos ? u.hijos.length : 0);
     listaNinos.querySelectorAll(".nino").forEach((d, i) => { d.children[0].value = u.hijos[i].nombre; ponEdad(d, String(u.hijos[i].edad ?? "")); });
-    marca("alerg", u.alergias ? "Sí" : "No"); alergias.value = u.alergias || "";
+    marca("alerg", u.alergias ? "Sí" : "No");
+    pintaAlerg(u.alergiasLista ? Object.fromEntries(u.alergiasLista.map(a => [a.k, a.que])) : { yo: u.alergias || "" });
   }
   form.comentario.value = u.comentario || "";
   const res = u.asiste === "Sí" ? `venís ${u.adultos} adulto${u.adultos > 1 ? "s" : ""}` + (u.hijos && u.hijos.length ? ` y ${u.hijos.length} hij@${u.hijos.length > 1 ? "s" : ""}` : "") : "no podréis venir";
   previa.textContent = `Ya nos respondiste el ${fecha}: ${res} 💚 ¿Quieres cambiar algo?`;
   previa.classList.remove("oculto"); btn.textContent = "Actualizar respuesta";
 }
-form.alerg.forEach(r => r.onchange = () => bloqueAlerg.classList.toggle("oculto", form.alerg.value !== "Sí"));
+form.alerg.forEach(r => r.onchange = () => { bloqueAlerg.classList.toggle("oculto", form.alerg.value !== "Sí"); pintaAlerg(); });
 form.asiste.forEach(r => r.onchange = () => bloqueSi.classList.toggle("oculto", form.asiste.value !== "Sí"));
 
 form.onsubmit = async e => {
   e.preventDefault();
   const si = form.asiste.value === "Sí";
+  form.querySelectorAll(".error").forEach(x => x.classList.remove("error")); errmsg.classList.add("oculto");
+  const malos = [];
+  if (si) {
+    listaNinos.querySelectorAll(".nino").forEach(d => {
+      if (!d.children[0].value.trim()) malos.push(d.children[0]);
+      if (!leeEdad(d)) malos.push(d.children[1]);
+    });
+    const ia = listaAdultos.querySelector("input"); if (ia && !ia.value.trim()) malos.push(ia);
+    if (form.alerg.value === "Sí") {
+      const ins = [...listaAlerg.querySelectorAll("input")];
+      if (!ins.some(i => i.value.trim())) malos.push(...ins);
+    }
+  }
+  if (malos.length) {
+    malos.forEach(x => x.classList.add("error"));
+    errmsg.textContent = "Nos falta algún dato, revisa lo marcado en rojo 🙂"; errmsg.classList.remove("oculto");
+    malos[0].scrollIntoView({ behavior: "smooth", block: "center" }); return;
+  }
+  const alergiasLista = si && form.alerg.value === "Sí" ? [...listaAlerg.querySelectorAll("input")].filter(i => i.value.trim()).map(i => ({ k: i.dataset.k, persona: i.dataset.n, que: i.value.trim() })) : [];
   const hijos = si ? [...listaNinos.querySelectorAll(".nino")].map(d => { return { nombre: d.children[0].value.trim(), edad: leeEdad(d) }; }) : [];
   const ia = listaAdultos.querySelector("input");
   const datos = { id, asiste: form.asiste.value, adultos: si ? val.adultos : 0,
     acompanante: si && ia ? ia.value.trim() : "", hijos,
-    alergias: si && form.alerg.value === "Sí" ? (alergias.value.trim() || "Sí (sin detallar)") : "",
+    alergias: alergiasLista.map(a => `${a.persona === "Tú" ? "Invitad@" : a.persona}: ${a.que}`).join("; "), alergiasLista,
     comentario: form.comentario.value.trim() };
   btn.disabled = true; btn.textContent = "Enviando…";
   try {
